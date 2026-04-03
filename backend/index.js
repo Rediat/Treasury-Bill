@@ -7,7 +7,21 @@ const { scrapeNBE } = require('./scraper');
 const app = express();
 app.use(cors());
 
-const DATA_FILE = path.join(__dirname, 'data.json');
+const DATA_FILE = process.env.VERCEL 
+    ? path.join('/tmp', 'data.json') 
+    : path.join(__dirname, 'data.json');
+
+// Initialize /tmp/data.json from bundle if on Vercel
+if (process.env.VERCEL && !fs.existsSync(DATA_FILE)) {
+    try {
+        const bundleData = path.join(__dirname, 'data.json');
+        if (fs.existsSync(bundleData)) {
+            fs.copyFileSync(bundleData, DATA_FILE);
+        }
+    } catch (e) {
+        console.error('Failed to initialize /tmp/data.json:', e);
+    }
+}
 
 // Helper to perform Holt's Linear Exponential Smoothing prediction
 function predictNext(dataPoints) {
@@ -36,8 +50,8 @@ function predictNext(dataPoints) {
 
 app.get('/api/data', async (req, res) => {
     try {
-        // Trigger a background scrape on load if you want
-        scrapeNBE(); // fire and forget to appended new data
+        // Trigger a background scrape on load
+        await scrapeNBE(); 
         
         let data = [];
         if (fs.existsSync(DATA_FILE)) {
@@ -57,7 +71,7 @@ app.get('/api/data', async (req, res) => {
                  }
              });
              predictions[period] = predictNext(points);
-        });
+         });
         
         res.json({ data, predictions });
     } catch (e) {
@@ -65,7 +79,11 @@ app.get('/api/data', async (req, res) => {
     }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`Backend running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+        console.log(`Backend running on http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;

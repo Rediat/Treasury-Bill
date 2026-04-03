@@ -3,7 +3,9 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const path = require('path');
 
-const DATA_FILE = path.join(__dirname, 'data.json');
+const DATA_FILE = process.env.VERCEL 
+    ? path.join('/tmp', 'data.json') 
+    : path.join(__dirname, 'data.json');
 
 async function scrapeNBE() {
   try {

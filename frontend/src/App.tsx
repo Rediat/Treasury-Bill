@@ -28,7 +28,7 @@ export default function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get<ApiResponse>('http://localhost:3001/api/data');
+        const response = await axios.get<ApiResponse>('/api/data');
         setData(response.data.data);
         setPredictions(response.data.predictions);
       } catch (err: any) {
