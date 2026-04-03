@@ -1,24 +1,34 @@
+# Dependency directories
+**/node_modules/
+
 # Logs
-logs
+**/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies
-node_modules/
+# Production / Build
+**/dist/
+**/dist-ssr/
+**/build/
+**/.next/
+**/.vercel/
+**/out/
 
-# Production
-dist
-dist-ssr
+# Environment Files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -27,5 +37,5 @@ dist-ssr
 *.sw?
 
 # Project specific
-backend/.env
-frontend/.env
+backend/data.json
+backend/raw_tables.json
