@@ -149,6 +149,24 @@ body {
   gap: 1.25rem;
 }
 
+.maturity-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-right: 0.25rem;
+}
+
+.period-indicator {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(100, 255, 218, 0.12);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
 .results-count {
   font-size: 0.75rem;
   font-weight: 600;

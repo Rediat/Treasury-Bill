@@ -117,10 +117,10 @@ export default function App() {
   }
 
   const periods = [
-    { key: '28_days', label: '28 Days' },
-    { key: '91_days', label: '91 Days' },
-    { key: '182_days', label: '182 Days' },
-    { key: '364_days', label: '364 Days' },
+    { key: '28_days', label: '28 Days', indicator: '1 Month' },
+    { key: '91_days', label: '91 Days', indicator: '3 Months' },
+    { key: '182_days', label: '182 Days', indicator: '6 Months' },
+    { key: '364_days', label: '364 Days', indicator: '1 Year' },
   ];
 
   const chartPeriods = ['1D', '5D', '1M', '3M', '6M', '1Y', 'ALL'];
@@ -148,14 +148,18 @@ export default function App() {
         <div className="metric-grid">
           {periods.map(period => {
             const currentVal = latestAuction?.cutOffYields[period.key];
-            const predVal = predictions[period.key];
             const trend = getTrend(period.key);
+            const pred = predictions?.[period.key];
 
             return (
-              <div className="glass-panel metric-card" key={period.key}>
-                <div className="metric-title">
-                  <Calendar size={16} /> 
-                  Maturity: {period.label}
+              <div key={period.key} className="glass-panel metric-card">
+                <div className="metric-header">
+                  <div className="label-group">
+                    <Calendar size={14} color="var(--text-secondary)" />
+                    <span className="maturity-label">Maturity: {period.label}</span>
+                    <span className="period-indicator">{period.indicator}</span>
+                  </div>
+                  <div className="btc-badge">Demand: {latestAuction ? (latestAuction.bidsReceived?.[period.key] && latestAuction.amountOffered?.[period.key] ? (latestAuction.bidsReceived[period.key]! / latestAuction.amountOffered[period.key]!).toFixed(2) : '1.00') : '-'}x</div>
                 </div>
                 <div className="metric-value">
                   {currentVal !== null && currentVal !== undefined ? `${currentVal}%` : 'N/A'}
@@ -176,7 +180,7 @@ export default function App() {
                   )}
                 </div>
 
-                {predictions[period.key] && (
+                {pred && (
                   <div className="prediction-box">
                     <div className="prediction-content">
                       <div className="prediction-meta">
