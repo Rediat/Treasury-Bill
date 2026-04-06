@@ -1,0 +1,83 @@
+- Found title: "AUCTION RESULTS | Wednesday, August 07, 2024"
+  [PUSHED] auction: Aug 07, 2024
+- Found title: "AUCTION RESULTS | Wednesday, August 21, 2024"
+- Found title: "AUCTION RESULTS | Wednesday, September 04, 2024"
+  [PUSHED] auction: Sep 04, 2024
+- Found title: "AUCTION RESULT | Wednesday, October 2, 2024"
+  [PUSHED] auction: Oct 02, 2024
+- Found title: "AUCTION RESULT |   Wednesday, October 16, 2024"
+  [PUSHED] auction: Oct 16, 2024
+- Found title: "AUCTION RESULT |   Wednesday, October 30, 2024"
+  [PUSHED] auction: Oct 30, 2024
+- Found title: "AUCTION RESULT |   Wednesday, November 13, 2024"
+  [PUSHED] auction: Nov 13, 2024
+- Found title: "AUCTION RESULT |   Wednesday, November 27, 2024"
+  [PUSHED] auction: Nov 27, 2024
+- Found title: "AUCTION RESULTS | Wednesday, December  11, 2024"
+  [PUSHED] auction: Dec 11, 2024
+- Found title: "AUCTION RESULTS | Wednesday, December  25, 2024"
+  [PUSHED] auction: Dec 25, 2024
+- Found title: "AUCTION RESULTS | Wednesday, January 8th, 2025"
+  [PUSHED] auction: Jan 08, 2025
+- Found title: "AUCTION RESULTS | Wednesday, January 22th, 2025"
+  [PUSHED] auction: Jan 22, 2025
+- Found title: "AUCTION RESULTS | Wednesday, February 5th, 2025"
+  [PUSHED] auction: Feb 05, 2025
+- Found title: "AUCTION RESULTS | Wednesday, February 20th, 2025"
+  [PUSHED] auction: Feb 20, 2025
+- Found title: "AUCTION RESULTS | Wednesday, March 5th, 2025"
+  [PUSHED] auction: Mar 05, 2025
+- Found title: "AUCTION RESULTS | Wednesday, March 19th, 2025"
+  [PUSHED] auction: Mar 19, 2025
+- Found title: "AUCTION RESULTS | Wednesday, April 2nd, 2025"
+- Found title: "AUCTION RESULTS | Wednesday, April 2nd, 2025"
+- Found title: "AUCTION RESULTS | Wednesday, April 16th, 2025"
+  [PUSHED] auction: Apr 16, 2025
+- Found title: "AUCTION RESULTS | Wednesday, April 30th, 2025"
+  [PUSHED] auction: Apr 30, 2025
+- Found title: "AUCTION RESULTS | Wednesday, May 14, 2025"
+  [PUSHED] auction: May 14, 2025
+- Found title: "AUCTION RESULTS | Wednesday, May 28, 2025"
+  [PUSHED] auction: May 28, 2025
+- Found title: "AUCTION RESULTS | Wednesday, June 11th, 2025"
+  [PUSHED] auction: Jun 11, 2025
+- Found title: "AUCTION RESULTS | Wednesday, June 25th, 2025"
+  [PUSHED] auction: Jun 25, 2025
+- Found title: "AUCTION RESULTS | Wednesday, July 9th, 2025"
+  [PUSHED] auction: Jul 09, 2025
+- Found title: "AUCTION RESULTS | Wednesday, July 23th, 2025"
+  [PUSHED] auction: Jul 23, 2025
+- Found title: "AUCTION RESULTS | Wednesday, August 6th, 2025"
+  [PUSHED] auction: Aug 06, 2025
+- Found title: "AUCTION RESULTS | Wednesday, August 20th, 2025"
+  [PUSHED] auction: Aug 20, 2025
+- Found title: "AUCTION RESULTS | Wednesday, September 3, 2025"
+  [PUSHED] auction: Sep 03, 2025
+- Found title: "AUCTION RESULTS | Wednesday, September 17, 2025"
+  [PUSHED] auction: Sep 17, 2025
+- Found title: "AUCTION RESULTS | Wednesday,October 1st,  2025"
+- Found title: "AUCTION RESULTS | Wednesday,October 15th  2025"
+  [PUSHED] auction: Oct 15, 2025
+- Found title: "AUCTION RESULTS | Wednesday, October 29th,  2025"
+  [PUSHED] auction: Oct 29, 2025
+- Found title: "AUCTION RESULTS | Wednesday, November 12th,  2025"
+  [PUSHED] auction: Nov 12, 2025
+- Found title: "AUCTION RESULTS | Wednesday, November 26th,  2025"
+  [PUSHED] auction: Nov 26, 2025
+- Found title: "AUCTION RESULTS | Wednesday, December 10th,  2025"
+  [PUSHED] auction: Dec 10, 2025
+- Found title: "AUCTION RESULTS | Wednesday, December 24th,  2025"
+  [PUSHED] auction: Dec 24, 2025
+- Found title: "AUCTION RESULTS | Wednesday, January 08,  2026"
+  [PUSHED] auction: Jan 08, 2026
+- Found title: "AUCTION RESULTS | Wednesday, January 21,  2026"
+  [PUSHED] auction: Jan 21, 2026
+- Found title: "AUCTION RESULTS | Wednesday, February 04,  2026"
+  [PUSHED] auction: Feb 04, 2026
+- Found title: "AUCTION RESULTS | Wednesday, March 04,  2026"
+  [PUSHED] auction: Mar 04, 2026
+- Found title: "AUCTION RESULTS | Wednesday, March 18,  2026"
+  [PUSHED] auction: Mar 18, 2026
+- Found title: "AUCTION RESULTS | Wednesday, April 01,  2026"
+  [PUSHED] auction: Apr 01, 2026
+Scrape finished. Found 39 auctions. Added/Updated 39 entries.

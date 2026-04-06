@@ -143,9 +143,26 @@ body {
   align-items: center;
 }
 
+.header-with-count {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.results-count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  letter-spacing: 0.05em;
+}
+
 .chart-header h2 {
-  margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
@@ -288,3 +305,90 @@ tr:hover td {
   color: var(--text-secondary);
   font-size: 0.85rem;
 }
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.demand-badge {
+  background: rgba(167, 139, 250, 0.1);
+  color: #a78bfa;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  font-weight: 600;
+}
+
+.prediction-box {
+  margin-top: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: rgba(56, 189, 248, 0.08);
+  border-radius: 12px;
+  border-left: 3px solid var(--accent);
+}
+
+.prediction-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.prediction-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.15rem;
+}
+
+.prediction-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.prediction-demand {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.prediction-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.yield-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.yield-tag, .btc-tag {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  min-width: 50px;
+  text-align: center;
+}
+
+.btc-tag {
+  color: #a78bfa;
+  background: rgba(167, 139, 250, 0.05);
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.3);
+}
+

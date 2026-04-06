@@ -23,29 +23,62 @@ if (process.env.VERCEL && !fs.existsSync(DATA_FILE)) {
     }
 }
 
-// Helper to perform Holt's Linear Exponential Smoothing prediction
-function predictNext(dataPoints) {
-    const n = dataPoints.length;
-    if (n < 2) return null;
+// Helper for Holt's Linear Exponential Smoothing
+function holtLinearUpdate(series, alpha = 0.5, beta = 0.3) {
+    if (series.length < 2) return series[0] || null;
     
-    // Sort by index just in case
-    const sorted = [...dataPoints].sort((a,b) => a[0] - b[0]);
+    let L = series[0];
+    let T = series[1] - series[0];
     
-    // Smoothing parameters
-    const alpha = 0.7; // Responsiveness
-    const beta = 0.3;  // Trend tracking
-    
-    let L = sorted[0][1];
-    let T = sorted[1][1] - sorted[0][1];
-    
-    for (let i = 1; i < n; i++) {
-        const Y = sorted[i][1];
-        const lastL = L;
+    for (let i = 1; i < series.length; i++) {
+        let Y = series[i];
+        let lastL = L;
         L = alpha * Y + (1 - alpha) * (lastL + T);
         T = beta * (L - lastL) + (1 - beta) * T;
     }
     
     return L + T;
+}
+
+// Advanced Prediction Engine: Two-Stage Market Simulation
+function predictNextYield(data, period) {
+    // 1. Minimum data check
+    const validPoints = data.filter(d => 
+        d.cutOffYields && d.cutOffYields[period] !== null &&
+        d.amountOffered && d.amountOffered[period] !== null &&
+        d.bidsReceived && d.bidsReceived[period] !== null
+    );
+
+    if (validPoints.length < 3) return null;
+
+    // 2. Predict Future Supply (Amount Offered)
+    const supplySeries = validPoints.map(d => d.amountOffered[period]).slice(-10);
+    const predictedSupply = holtLinearUpdate(supplySeries, 0.4, 0.2);
+
+    // 3. Predict Future Demand (Bids Received)
+    const demandSeries = validPoints.map(d => d.bidsReceived[period]).slice(-10);
+    const predictedDemand = holtLinearUpdate(demandSeries, 0.4, 0.2);
+
+    // 4. Calculate Predicted Bid-to-Cover (BTC) Ratio
+    const predictedBTC = (predictedSupply > 0) ? (predictedDemand / predictedSupply) : 1.0;
+
+    // 5. Predict Yield Trend (Base Forecast)
+    const yieldSeries = validPoints.map(d => d.cutOffYields[period]).slice(-12);
+    // Use higher alpha for yields to respond to recent market shifts
+    const baseYieldForecast = holtLinearUpdate(yieldSeries, 0.7, 0.3);
+
+    // 6. Apply Demand-Supply Sensitivity Adjustment
+    const demandSensitivity = -0.45; // Yield % change per unit of BTC deviation from 1.2
+    const btcDeviation = predictedBTC - 1.20;
+    
+    const finalYield = baseYieldForecast + (btcDeviation * demandSensitivity);
+
+    return {
+        yield: finalYield,
+        btc: predictedBTC,
+        supply: predictedSupply,
+        demand: predictedDemand
+    };
 }
 
 app.get('/api/data', async (req, res) => {
@@ -58,19 +91,10 @@ app.get('/api/data', async (req, res) => {
             data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
         }
         
-        // Compute predictions
+        // Compute predictions using all historical results
         let predictions = {};
-        
-        // We will predict the next cutoff yield for each period
         ['28_days', '91_days', '182_days', '364_days'].forEach(period => {
-             // get all valid points
-             const points = [];
-             data.forEach((d, idx) => {
-                 if (d.cutOffYields && d.cutOffYields[period] !== null && !isNaN(d.cutOffYields[period])) {
-                     points.push([idx, d.cutOffYields[period]]);
-                 }
-             });
-             predictions[period] = predictNext(points);
+             predictions[period] = predictNextYield(data, period);
          });
         
         res.json({ data, predictions });

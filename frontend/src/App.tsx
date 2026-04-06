@@ -9,17 +9,27 @@ interface YieldData {
   date: string;
   cutOffYields: Record<string, number | null>;
   weightedAverageYields: Record<string, number | null>;
+  amountOffered: Record<string, number | null>;
+  bidsReceived: Record<string, number | null>;
+  amountAccepted: Record<string, number | null>;
   timestamp: number;
+}
+
+interface PredictionData {
+  yield: number;
+  btc: number;
+  supply: number;
+  demand: number;
 }
 
 interface ApiResponse {
   data: YieldData[];
-  predictions: Record<string, number | null>;
+  predictions: Record<string, PredictionData | null>;
 }
 
 export default function App() {
   const [data, setData] = useState<YieldData[]>([]);
-  const [predictions, setPredictions] = useState<Record<string, number | null>>({});
+  const [predictions, setPredictions] = useState<Record<string, PredictionData | null>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFullHistory, setShowFullHistory] = useState(false);
@@ -94,13 +104,14 @@ export default function App() {
 
   // Append prediction node
   if (data.length > 0) {
+    const f = predictions;
     chartData.push({
       date: 'Next (Predicted)',
       fullDate: 'Prediction',
-      '28 Days': predictions['28_days'] ? parseFloat(predictions['28_days']!.toFixed(3)) : null,
-      '91 Days': predictions['91_days'] ? parseFloat(predictions['91_days']!.toFixed(3)) : null,
-      '182 Days': predictions['182_days'] ? parseFloat(predictions['182_days']!.toFixed(3)) : null,
-      '364 Days': predictions['364_days'] ? parseFloat(predictions['364_days']!.toFixed(3)) : null,
+      '28 Days': f?.['28_days']?.yield || null,
+      '91 Days': f?.['91_days']?.yield || null,
+      '182 Days': f?.['182_days']?.yield || null,
+      '364 Days': f?.['364_days']?.yield || null,
       isPredicted: true
     });
   }
@@ -149,15 +160,35 @@ export default function App() {
                 <div className="metric-value">
                   {currentVal !== null && currentVal !== undefined ? `${currentVal}%` : 'N/A'}
                 </div>
-                {trend && (
-                  <div className={`metric-sub ${trend.isUp ? 'trend-up' : 'trend-down'}`}>
-                    <TrendingUp size={14} style={{ transform: trend.isUp ? 'none' : 'rotate(180deg)' }} />
-                    {trend.diff}% from last auction
-                  </div>
-                )}
-                {predVal && (
-                  <div className="metric-sub" style={{ marginTop: '0.5rem', color: 'var(--accent)' }}>
-                    Predicted next: <strong>{predVal.toFixed(3)}%</strong>
+                
+                <div className="metric-row">
+                  {trend && (
+                    <div className={`metric-sub ${trend.isUp ? 'trend-up' : 'trend-down'}`}>
+                      <TrendingUp size={14} style={{ transform: trend.isUp ? 'none' : 'rotate(180deg)' }} />
+                      {trend.diff}%
+                    </div>
+                  )}
+                  
+                  {latestAuction?.bidsReceived?.[period.key] && latestAuction?.amountOffered?.[period.key] && (
+                    <div className="metric-sub demand-badge" title="Bid-to-Cover Ratio">
+                      Demand: {(latestAuction.bidsReceived[period.key]! / latestAuction.amountOffered[period.key]!).toFixed(2)}x
+                    </div>
+                  )}
+                </div>
+
+                {predictions[period.key] && (
+                  <div className="prediction-box">
+                    <div className="prediction-content">
+                      <div className="prediction-meta">
+                        <span className="prediction-label">Next Prediction</span>
+                        <span className="prediction-demand" title="Predicted Demand Ratio">
+                           Demand: {predictions[period.key]!.btc.toFixed(2)}x
+                        </span>
+                      </div>
+                      <span className="prediction-value">
+                        {predictions[period.key]!.yield.toFixed(3)}%
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -240,7 +271,10 @@ export default function App() {
 
         <section className="glass-panel table-section">
           <div className="chart-header" style={{ paddingBottom: '1rem' }}>
-            <h2>{showFullHistory ? "Full Auction History" : "Recent Auction Results"}</h2>
+            <div className="header-with-count">
+              <h2>{showFullHistory ? "Full Auction History" : "Recent Auction Results"}</h2>
+              <span className="results-count">{data.length} Results</span>
+            </div>
             <button 
                className="toggle-button"
                onClick={() => setShowFullHistory(!showFullHistory)}
@@ -248,30 +282,53 @@ export default function App() {
               {showFullHistory ? "Show Recent View" : "Show Full History"}
             </button>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Auction No</th>
-                <th>28 Days</th>
-                <th>91 Days</th>
-                <th>182 Days</th>
-                <th>364 Days</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...data].reverse().slice(0, showFullHistory ? data.length : 5).map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.date}</td>
-                  <td>{item.auctionNo}</td>
-                  <td>{item.cutOffYields['28_days'] ? `${item.cutOffYields['28_days']}%` : '-'}</td>
-                  <td>{item.cutOffYields['91_days'] ? `${item.cutOffYields['91_days']}%` : '-'}</td>
-                  <td>{item.cutOffYields['182_days'] ? `${item.cutOffYields['182_days']}%` : '-'}</td>
-                  <td>{item.cutOffYields['364_days'] ? `${item.cutOffYields['364_days']}%` : '-'}</td>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Auction</th>
+                  <th>Yield (28 / 91 / 182 / 364)</th>
+                  <th>Demand Ratio (BTC)</th>
+                  <th>Total Bids (ETB M)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {[...data].reverse().slice(0, showFullHistory ? data.length : 5).map((item, idx) => {
+                  const getBTC = (p: string) => {
+                    if (!item.bidsReceived?.[p] || !item.amountOffered?.[p]) return null;
+                    return (item.bidsReceived[p]! / item.amountOffered[p]!).toFixed(2);
+                  };
+
+                  const totalBids = Object.values(item.bidsReceived || {}).reduce((a, b) => (a || 0) + (b || 0), 0);
+
+                  return (
+                    <tr key={idx}>
+                      <td>{item.date}</td>
+                      <td>{item.auctionNo}</td>
+                      <td>
+                        <div className="yield-row">
+                          <span className="yield-tag">{item.cutOffYields['28_days'] || '-'}%</span>
+                          <span className="yield-tag">{item.cutOffYields['91_days'] || '-'}%</span>
+                          <span className="yield-tag">{item.cutOffYields['182_days'] || '-'}%</span>
+                          <span className="yield-tag">{item.cutOffYields['364_days'] || '-'}%</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="yield-row">
+                          <span className="btc-tag">{getBTC('28_days') ? `${getBTC('28_days')}x` : '-'}</span>
+                          <span className="btc-tag">{getBTC('91_days') ? `${getBTC('91_days')}x` : '-'}</span>
+                          <span className="btc-tag">{getBTC('182_days') ? `${getBTC('182_days')}x` : '-'}</span>
+                          <span className="btc-tag">{getBTC('364_days') ? `${getBTC('364_days')}x` : '-'}</span>
+                        </div>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>{totalBids ? totalBids.toLocaleString() : '-'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </section>
       </main>
     </>
