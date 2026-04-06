@@ -37,5 +37,5 @@ lerna-debug.log*
 *.sw?
 
 # Project specific
-backend/data.json
+# backend/data.json
 backend/raw_tables.json
