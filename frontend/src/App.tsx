@@ -93,7 +93,7 @@ export default function App() {
 
   // Helper to format chart data
   const chartData = filteredData.map((item) => ({
-    date: new Date(item.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
+    date: new Date(item.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' }),
     fullDate: item.date,
     '28 Days': item.cutOffYields['28_days'],
     '91 Days': item.cutOffYields['91_days'],
