@@ -1,15 +1,15 @@
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --panel-bg: rgba(30, 41, 59, 0.7);
-  --border: rgba(148, 163, 184, 0.1);
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent: #38bdf8;
-  --accent-glow: rgba(56, 189, 248, 0.2);
-  --success: #34d399;
+  --bg-primary: #121212;
+  --bg-secondary: #1c1c1c;
+  --panel-bg: rgba(28, 28, 28, 0.8);
+  --border: rgba(255, 255, 255, 0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #999999;
+  --accent: #4ade80;
+  --accent-glow: rgba(74, 222, 128, 0.15);
+  --success: #22c55e;
   --danger: #f87171;
-  --card-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+  --card-shadow: 0 10px 40px -10px rgba(0,0,0,0.8);
 }
 
 body {
@@ -17,8 +17,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 40%),
-    radial-gradient(circle at 85% 30%, rgba(167, 139, 250, 0.08), transparent 40%);
+    radial-gradient(circle at 15% 50%, rgba(74, 222, 128, 0.05), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(34, 197, 94, 0.05), transparent 40%);
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -43,13 +43,13 @@ body {
 .glass-panel:hover {
   transform: translateY(-2px);
   box-shadow: 0 15px 50px -10px rgba(0,0,0,0.6);
-  border-color: rgba(148, 163, 184, 0.2);
+  border-color: rgba(74, 222, 128, 0.2);
 }
 
 .dashboard-header {
   padding: 2rem 5%;
   border-bottom: 1px solid var(--border);
-  background: rgba(15, 23, 42, 0.8);
+  background: rgba(18, 18, 18, 0.85);
   backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
@@ -63,7 +63,7 @@ body {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
+  background: linear-gradient(135deg, #f0fdf4 0%, #4ade80 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -159,7 +159,7 @@ body {
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--accent);
-  background: rgba(100, 255, 218, 0.12);
+  background: rgba(74, 222, 128, 0.12);
   padding: 0.2rem 0.6rem;
   border-radius: 6px;
   text-transform: uppercase;
@@ -246,7 +246,7 @@ tr:hover td {
 }
 
 .toggle-button {
-  background: rgba(56, 189, 248, 0.1);
+  background: rgba(74, 222, 128, 0.1);
   border: 1px solid var(--accent);
   color: var(--accent);
   padding: 0.5rem 1rem;
@@ -257,13 +257,13 @@ tr:hover td {
 }
 
 .toggle-button:hover {
-  background: rgba(56, 189, 248, 0.2);
+  background: rgba(74, 222, 128, 0.2);
   transform: translateY(-1px);
 }
 
 .period-selector {
   display: flex;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(28, 28, 28, 0.6);
   padding: 4px;
   border-radius: 10px;
   border: 1px solid var(--border);
@@ -288,7 +288,7 @@ tr:hover td {
 
 .period-btn.active {
   background: var(--accent);
-  color: #000;
+  color: #064e3b;
 }
 
 @keyframes pulse {
@@ -332,18 +332,18 @@ tr:hover td {
 }
 
 .demand-badge {
-  background: rgba(167, 139, 250, 0.1);
-  color: #a78bfa;
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
   padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid rgba(167, 139, 250, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.2);
   font-weight: 600;
 }
 
 .prediction-box {
   margin-top: 1.25rem;
   padding: 0.75rem 1rem;
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(74, 222, 128, 0.08);
   border-radius: 12px;
   border-left: 3px solid var(--accent);
 }
@@ -400,13 +400,13 @@ tr:hover td {
 }
 
 .btc-tag {
-  color: #a78bfa;
-  background: rgba(167, 139, 250, 0.05);
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.05);
 }
 
 .table-container {
   overflow-x: auto;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.3);
+  background: rgba(18, 18, 18, 0.4);
 }
 

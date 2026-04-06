@@ -227,10 +227,10 @@ export default function App() {
                   formatter={(value: any) => [`${value}%`, 'Yield']}
                 />
                 {[
-                  { key: '28 Days', color: '#38bdf8' },
-                  { key: '91 Days', color: '#a78bfa' },
-                  { key: '182 Days', color: '#34d399' },
-                  { key: '364 Days', color: '#fbbf24' },
+                  { key: '28 Days', color: '#bef264' },
+                  { key: '91 Days', color: '#4ade80' },
+                  { key: '182 Days', color: '#fbbf24' },
+                  { key: '364 Days', color: '#ffffff' },
                 ].map(l => (
                   <Line 
                     key={l.key} 
