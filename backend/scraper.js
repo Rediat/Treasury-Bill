@@ -53,11 +53,6 @@ async function scrapeNBE() {
             let currentAuctionDate = normalizeDate(rawDate);
             let currentAuctionNo = null;
 
-            const rows = $(item).find('tr');
-            if (rows.length === 0) {
-                return;
-            }
-
             // Extraction of Auction No from the accordion content
             const contextText = $(item).text();
             const noMatch = contextText.match(/Auction No:\s*([\d\w/thstndrd]+)/i);
@@ -65,16 +60,17 @@ async function scrapeNBE() {
                 currentAuctionNo = noMatch[1].trim();
             }
 
+            const rows = $(item).find('tr');
             let cutOffYields = {};
             let weightedAverageYields = {};
             let amountOffered = {};
             let bidsReceived = {};
             let amountAccepted = {};
             
+            // Standard Table Row Extraction
             rows.each((j, tr) => {
                 const tds = [];
                 $(tr).find('td, th').each((k, td) => {
-                    // Remove commas and non-breaking spaces
                     tds.push($(td).text().trim().replace(/,/g, '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' '));
                 });
 
@@ -87,19 +83,42 @@ async function scrapeNBE() {
                         "364_days": parseFloat(tds[4]) || null
                     };
 
-                    if (rowLabel.includes('cut off yield')) {
-                        cutOffYields = values;
-                    } else if (rowLabel.includes('weighted average yield')) {
-                        weightedAverageYields = values;
-                    } else if (rowLabel.includes('amount offered')) {
-                        amountOffered = values;
-                    } else if (rowLabel.includes('bids received')) {
-                        bidsReceived = values;
-                    } else if (rowLabel.includes('amount accepted')) {
-                        amountAccepted = values;
-                    }
+                    if (rowLabel.includes('cut off yield')) cutOffYields = values;
+                    else if (rowLabel.includes('weighted average yield')) weightedAverageYields = values;
+                    else if (rowLabel.includes('amount offered')) amountOffered = values;
+                    else if (rowLabel.includes('bids received')) bidsReceived = values;
+                    else if (rowLabel.includes('amount accepted')) amountAccepted = values;
                 }
             });
+
+            // Fallback: If still empty (e.g., malformed tables or text-based layouts),
+            // try a regex search of the entire accordion content for keyword-rich lines.
+            if (Object.keys(cutOffYields).length === 0 && Object.keys(amountOffered).length === 0) {
+                const text = $(item).text().replace(/\u00a0/g, ' ').replace(/\s+/g, ' ');
+                
+                // Helper to extract values from text blocks
+                const extractFromText = (keyword) => {
+                    // Match the keyword, then skip non-numbers until we reach 4 numbers (with decimals)
+                    // This is robust against "8 DAYS" vs "28 DAYS" typos as it just finds the next 4 available numbers
+                    const regex = new RegExp(`${keyword}.*?(\\d+\\.\\d+).*?(\\d+\\.\\d+).*?(\\d+\\.\\d+).*?(\\d+\\.\\d+)`, "i");
+                    const match = text.match(regex);
+                    if (match) {
+                        return {
+                            "28_days": parseFloat(match[1]),
+                            "91_days": parseFloat(match[2]),
+                            "182_days": parseFloat(match[3]),
+                            "364_days": parseFloat(match[4])
+                        };
+                    }
+                    return null;
+                };
+
+                cutOffYields = extractFromText('Cut[\\s-]off Yield') || {};
+                weightedAverageYields = extractFromText('Weighted Average Yield') || {};
+                amountOffered = extractFromText('Amount Offered') || {};
+                bidsReceived = extractFromText('Bids Received') || {};
+                amountAccepted = extractFromText('Amount Accepted') || {};
+            }
             
             if (currentAuctionDate && (Object.keys(cutOffYields).length > 0 || Object.keys(amountOffered).length > 0)) {
                 newEntries.push({
