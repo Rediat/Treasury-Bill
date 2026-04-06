@@ -52,18 +52,18 @@ function predictNextYield(data, period) {
     if (validPoints.length < 3) return null;
 
     // 2. Predict Future Supply (Amount Offered)
-    const supplySeries = validPoints.map(d => d.amountOffered[period]).slice(-10);
+    const supplySeries = validPoints.map(d => d.amountOffered[period]).slice(-18);
     const predictedSupply = holtLinearUpdate(supplySeries, 0.4, 0.2);
 
     // 3. Predict Future Demand (Bids Received)
-    const demandSeries = validPoints.map(d => d.bidsReceived[period]).slice(-10);
+    const demandSeries = validPoints.map(d => d.bidsReceived[period]).slice(-18);
     const predictedDemand = holtLinearUpdate(demandSeries, 0.4, 0.2);
 
     // 4. Calculate Predicted Bid-to-Cover (BTC) Ratio
     const predictedBTC = (predictedSupply > 0) ? (predictedDemand / predictedSupply) : 1.0;
 
     // 5. Predict Yield Trend (Base Forecast)
-    const yieldSeries = validPoints.map(d => d.cutOffYields[period]).slice(-12);
+    const yieldSeries = validPoints.map(d => d.cutOffYields[period]).slice(-18);
     // Use higher alpha for yields to respond to recent market shifts
     const baseYieldForecast = holtLinearUpdate(yieldSeries, 0.7, 0.3);
 
