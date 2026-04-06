@@ -224,7 +224,12 @@ export default function App() {
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px' }}
                   labelStyle={{ color: 'var(--accent)' }}
-                  formatter={(value: any) => [`${value}%`, 'Yield']}
+                  separator=": "
+                  itemSorter={(item: any) => -(item.value || 0)}
+                  formatter={(value: any, name: any) => {
+                    const formattedValue = Number(value).toFixed(3);
+                    return [`${formattedValue}%`, `${name} Yield`];
+                  }}
                 />
                 {[
                   { key: '28 Days', color: '#bef264' },
