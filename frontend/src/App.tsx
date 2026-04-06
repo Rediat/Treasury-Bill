@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
-import { Activity, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { Activity, TrendingUp, Calendar, AlertCircle, X } from 'lucide-react';
 import './index.css';
 
 interface YieldData {
@@ -34,6 +34,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [showFullHistory, setShowFullHistory] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('3M');
+  const [filterMonth, setFilterMonth] = useState<string>('');
+  const [filterYear, setFilterYear] = useState<string>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -137,6 +139,10 @@ export default function App() {
     };
   };
 
+
+
+
+
   return (
     <>
       <header className="dashboard-header">
@@ -217,7 +223,10 @@ export default function App() {
           </div>
           <div style={{ height: 400, width: '100%', marginTop: '1rem' }}>
             <ResponsiveContainer>
-              <LineChart data={chartData} margin={{ top: 30, right: 30, left: 10, bottom: 0 }}>
+              <LineChart 
+                data={chartData} 
+                margin={{ top: 30, right: 30, left: 10, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="date" stroke="var(--text-secondary)" tick={{fontSize: 12}} />
                 <YAxis stroke="var(--text-secondary)" tick={{fontSize: 12}} domain={['auto', 'auto']} tickFormatter={(v) => `${v}%`} />
@@ -244,7 +253,7 @@ export default function App() {
                     stroke={l.color} 
                     strokeWidth={2} 
                     dot={{ r: 4 }} 
-                    activeDot={{ r: 6 }} 
+                    activeDot={{ r: 7, cursor: 'pointer' }} 
                     name={l.key} 
                   />
                 ))}
@@ -279,18 +288,86 @@ export default function App() {
         </section>
 
         <section className="glass-panel table-section">
-          <div className="chart-header" style={{ paddingBottom: '1rem' }}>
+          <div className="chart-header" style={{ paddingBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div className="header-with-count">
-              <h2>{showFullHistory ? "Full Auction History" : "Recent Auction Results"}</h2>
-              <span className="results-count">{data.length} Results</span>
+              <h2>{(filterMonth || filterYear) ? `Filtered Results` : (showFullHistory ? "Full Auction History" : "Recent Auction Results")}</h2>
+              <span className="results-count">
+                {(filterMonth || filterYear) 
+                  ? `${data.filter(item => {
+                      const d = new Date(item.date);
+                      if (isNaN(d.getTime())) return false;
+                      const y = d.getFullYear().toString();
+                      const m = String(d.getMonth() + 1).padStart(2, '0');
+                      const matchMonth = filterMonth ? m === filterMonth : true;
+                      const matchYear = filterYear ? y === filterYear : true;
+                      return matchMonth && matchYear;
+                    }).length} Matches` 
+                  : `${data.length} Results`}
+              </span>
             </div>
-            <button 
-               className="toggle-button"
-               onClick={() => setShowFullHistory(!showFullHistory)}
-            >
-              {showFullHistory ? "Show Recent View" : "Show Full History"}
-            </button>
+            
+            <div className="filter-controls">
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Calendar size={14} style={{ position: 'absolute', left: '10px', color: 'var(--text-secondary)' }} />
+                <select 
+                  className="date-input" 
+                  style={{ paddingLeft: '2rem', paddingRight: '1rem', marginRight: '5px' }}
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                  title="Filter by month"
+                >
+                  <option value="">Month</option>
+                  <option value="01">Jan</option>
+                  <option value="02">Feb</option>
+                  <option value="03">Mar</option>
+                  <option value="04">Apr</option>
+                  <option value="05">May</option>
+                  <option value="06">Jun</option>
+                  <option value="07">Jul</option>
+                  <option value="08">Aug</option>
+                  <option value="09">Sep</option>
+                  <option value="10">Oct</option>
+                  <option value="11">Nov</option>
+                  <option value="12">Dec</option>
+                </select>
+                <select 
+                  className="date-input" 
+                  value={filterYear}
+                  onChange={(e) => setFilterYear(e.target.value)}
+                  title="Filter by year"
+                >
+                  <option value="">Year</option>
+                  {Array.from(new Set(data.map(d => {
+                    const dt = new Date(d.date);
+                    return isNaN(dt.getTime()) ? null : dt.getFullYear().toString();
+                  }))).filter((y): y is string => y !== null).sort().map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {(filterMonth || filterYear) && (
+                <button 
+                  className="clear-filter-btn"
+                  onClick={() => { setFilterMonth(''); setFilterYear(''); }}
+                >
+                  <X size={14} /> Clear
+                </button>
+              )}
+
+              <button 
+                 className="toggle-button"
+                 onClick={() => {
+                   setShowFullHistory(!showFullHistory);
+                   setFilterMonth('');
+                   setFilterYear('');
+                 }}
+              >
+                {showFullHistory ? "Show Recent View" : "Show Full History"}
+              </button>
+            </div>
           </div>
+
           <div className="table-container">
             <table>
               <thead>
@@ -303,7 +380,18 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {[...data].reverse().slice(0, showFullHistory ? data.length : 5).map((item, idx) => {
+                {((filterMonth || filterYear)
+                  ? data.filter(item => {
+                      const d = new Date(item.date);
+                      if (isNaN(d.getTime())) return false;
+                      const y = d.getFullYear().toString();
+                      const m = String(d.getMonth() + 1).padStart(2, '0');
+                      const matchMonth = filterMonth ? m === filterMonth : true;
+                      const matchYear = filterYear ? y === filterYear : true;
+                      return matchMonth && matchYear;
+                    })
+                  : [...data].reverse().slice(0, showFullHistory ? data.length : 5)
+                ).map((item, idx) => {
                   const getBTC = (p: string) => {
                     if (!item.bidsReceived?.[p] || !item.amountOffered?.[p]) return null;
                     return (item.bidsReceived[p]! / item.amountOffered[p]!).toFixed(2);
