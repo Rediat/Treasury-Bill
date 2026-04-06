@@ -74,13 +74,19 @@ async function scrapeNBE() {
                     tds.push($(td).text().trim().replace(/,/g, '').replace(/\u00a0/g, ' ').replace(/\s+/g, ' '));
                 });
 
-                if (tds.length > 0) {
-                    const rowLabel = tds[0].toLowerCase();
+                if (tds.length >= 5) {
+                    let labelIdx = 0;
+                    // Check if the first cell is empty and the second might be the label
+                    if (tds[0] === '' && tds[1] !== '') {
+                        labelIdx = 1;
+                    }
+
+                    const rowLabel = tds[labelIdx].toLowerCase();
                     const values = {
-                        "28_days": parseFloat(tds[1]) || null,
-                        "91_days": parseFloat(tds[2]) || null,
-                        "182_days": parseFloat(tds[3]) || null,
-                        "364_days": parseFloat(tds[4]) || null
+                        "28_days": parseFloat(tds[labelIdx + 1]) || null,
+                        "91_days": parseFloat(tds[labelIdx + 2]) || null,
+                        "182_days": parseFloat(tds[labelIdx + 3]) || null,
+                        "364_days": parseFloat(tds[labelIdx + 4]) || null
                     };
 
                     if (rowLabel.includes('cut off yield')) cutOffYields = values;
@@ -98,16 +104,16 @@ async function scrapeNBE() {
                 
                 // Helper to extract values from text blocks
                 const extractFromText = (keyword) => {
-                    // Match the keyword, then skip non-numbers until we reach 4 numbers (with decimals)
-                    // This is robust against "8 DAYS" vs "28 DAYS" typos as it just finds the next 4 available numbers
-                    const regex = new RegExp(`${keyword}.*?(\\d+\\.\\d+).*?(\\d+\\.\\d+).*?(\\d+\\.\\d+).*?(\\d+\\.\\d+)`, "i");
+                    // Match the keyword, then look for up to 4 numbers on the SAME line/context.
+                    // We use [^\\n]*? to ensure we stay within the same text block/row.
+                    const regex = new RegExp(`${keyword}[^\\d\\n]*?(\\d+\\.\\d+)?(?:[^\\d\\n]+(\\d+\\.\\d+))?(?:[^\\d\\n]+(\\d+\\.\\d+))?(?:[^\\d\\n]+(\\d+\\.\\d+))?`, "i");
                     const match = text.match(regex);
                     if (match) {
                         return {
-                            "28_days": parseFloat(match[1]),
-                            "91_days": parseFloat(match[2]),
-                            "182_days": parseFloat(match[3]),
-                            "364_days": parseFloat(match[4])
+                            "28_days": match[1] ? parseFloat(match[1]) : null,
+                            "91_days": match[2] ? parseFloat(match[2]) : null,
+                            "182_days": match[3] ? parseFloat(match[3]) : null,
+                            "364_days": match[4] ? parseFloat(match[4]) : null
                         };
                     }
                     return null;
