@@ -217,7 +217,7 @@ export default function App() {
           </div>
           <div style={{ height: 400, width: '100%', marginTop: '1rem' }}>
             <ResponsiveContainer>
-              <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <LineChart data={chartData} margin={{ top: 30, right: 30, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="date" stroke="var(--text-secondary)" tick={{fontSize: 12}} />
                 <YAxis stroke="var(--text-secondary)" tick={{fontSize: 12}} domain={['auto', 'auto']} tickFormatter={(v) => `${v}%`} />
@@ -243,7 +243,7 @@ export default function App() {
                     name={l.key} 
                   />
                 ))}
-                <ReferenceLine x="Next (Predicted)" stroke="var(--accent)" strokeDasharray="3 3" label={{ position: 'top', value: 'Prediction', fill: 'var(--accent)', fontSize: 12 }} />
+                <ReferenceLine x="Next (Predicted)" stroke="var(--accent)" strokeDasharray="3 3" label={{ position: 'top', value: 'Prediction', fill: 'var(--accent)', fontSize: 12, textAnchor: 'end' }} />
                 <Legend 
                   iconType="circle"
                   content={(props) => {
