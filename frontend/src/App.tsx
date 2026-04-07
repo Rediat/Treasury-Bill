@@ -1,7 +1,61 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
-import { Activity, TrendingUp, Calendar, AlertCircle, X } from 'lucide-react';
+import { Activity, TrendingUp, Calendar, AlertCircle, X, ChevronDown } from 'lucide-react';
+
+const CustomSelect = ({ value, onChange, options, placeholder, icon, style, title }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div 
+      className={`custom-select-container ${isOpen ? 'open' : ''}`} 
+      ref={dropdownRef} 
+      style={style}
+      title={title}
+    >
+      <div 
+        className="custom-select-trigger" 
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {icon}
+          <span>{value ? options.find((o: any) => o.value === value)?.label : placeholder}</span>
+        </span>
+        <ChevronDown size={14} color="var(--text-secondary)" />
+      </div>
+      {isOpen && (
+        <div className="custom-select-dropdown">
+          <div 
+            className={`custom-select-option ${value === '' ? 'selected' : ''}`}
+            onClick={() => { onChange(''); setIsOpen(false); }}
+          >
+            {placeholder}
+          </div>
+          {options.map((opt: any) => (
+            <div 
+              key={opt.value} 
+              className={`custom-select-option ${value === opt.value ? 'selected' : ''}`}
+              onClick={() => { onChange(opt.value); setIsOpen(false); }}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 import './index.css';
 
 interface YieldData {
@@ -307,43 +361,41 @@ export default function App() {
             </div>
             
             <div className="filter-controls">
-              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <Calendar size={14} style={{ position: 'absolute', left: '10px', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
-                <select 
-                  className="date-input" 
-                  style={{ paddingLeft: '2rem', paddingRight: '1rem', marginRight: '5px' }}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CustomSelect 
                   value={filterMonth}
-                  onChange={(e) => setFilterMonth(e.target.value)}
+                  onChange={setFilterMonth}
+                  placeholder="Month"
                   title="Filter by month"
-                >
-                  <option value="">Month</option>
-                  <option value="01">Jan</option>
-                  <option value="02">Feb</option>
-                  <option value="03">Mar</option>
-                  <option value="04">Apr</option>
-                  <option value="05">May</option>
-                  <option value="06">Jun</option>
-                  <option value="07">Jul</option>
-                  <option value="08">Aug</option>
-                  <option value="09">Sep</option>
-                  <option value="10">Oct</option>
-                  <option value="11">Nov</option>
-                  <option value="12">Dec</option>
-                </select>
-                <select 
-                  className="date-input" 
+                  icon={<Calendar size={14} color="var(--text-secondary)" />}
+                  options={[
+                    { value: "01", label: "Jan" },
+                    { value: "02", label: "Feb" },
+                    { value: "03", label: "Mar" },
+                    { value: "04", label: "Apr" },
+                    { value: "05", label: "May" },
+                    { value: "06", label: "Jun" },
+                    { value: "07", label: "Jul" },
+                    { value: "08", label: "Aug" },
+                    { value: "09", label: "Sep" },
+                    { value: "10", label: "Oct" },
+                    { value: "11", label: "Nov" },
+                    { value: "12", label: "Dec" }
+                  ]}
+                />
+                
+                <CustomSelect 
                   value={filterYear}
-                  onChange={(e) => setFilterYear(e.target.value)}
+                  onChange={setFilterYear}
+                  placeholder="Year"
                   title="Filter by year"
-                >
-                  <option value="">Year</option>
-                  {Array.from(new Set(data.map(d => {
-                    const dt = new Date(d.date);
-                    return isNaN(dt.getTime()) ? null : dt.getFullYear().toString();
-                  }))).filter((y): y is string => y !== null).sort().map(y => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
+                  options={
+                    Array.from(new Set(data.map(d => {
+                      const dt = new Date(d.date);
+                      return isNaN(dt.getTime()) ? null : dt.getFullYear().toString();
+                    }))).filter((y): y is string => y !== null).sort().map(y => ({ value: y, label: y }))
+                  }
+                />
               </div>
               
               {(filterMonth || filterYear) && (
