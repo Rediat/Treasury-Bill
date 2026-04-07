@@ -308,7 +308,7 @@ export default function App() {
             
             <div className="filter-controls">
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-                <Calendar size={14} style={{ position: 'absolute', left: '10px', color: 'var(--text-secondary)' }} />
+                <Calendar size={14} style={{ position: 'absolute', left: '10px', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
                 <select 
                   className="date-input" 
                   style={{ paddingLeft: '2rem', paddingRight: '1rem', marginRight: '5px' }}

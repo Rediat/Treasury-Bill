@@ -427,6 +427,8 @@ tr:hover td {
   outline: none;
   transition: border-color 0.2s;
   color-scheme: dark;
+  user-select: auto;
+  -webkit-user-select: auto;
 }
 
 .date-input:focus {
