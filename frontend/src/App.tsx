@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
-import { Activity, TrendingUp, Calendar, AlertCircle, X, ChevronDown, HelpCircle, BookOpen, TrendingDown, BarChart2, Clock } from 'lucide-react';
+import { Activity, TrendingUp, Calendar, AlertCircle, X, ChevronDown, HelpCircle, BookOpen, BarChart2 } from 'lucide-react';
 
 const CustomSelect = ({ value, onChange, options, placeholder, icon, style, title }: any) => {
   const [isOpen, setIsOpen] = useState(false);
