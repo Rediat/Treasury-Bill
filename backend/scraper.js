@@ -158,7 +158,13 @@ async function scrapeNBE() {
             appendedCount++;
         } else {
             // Update existing with new fields/standardized date
-            existingData[existingIndex] = { ...existingData[existingIndex], ...entry };
+            // Preserve auctionNo if it already exists and the new one is null
+            const existing = existingData[existingIndex];
+            existingData[existingIndex] = { 
+                ...existing, 
+                ...entry,
+                auctionNo: entry.auctionNo || existing.auctionNo
+            };
         }
     }
 
