@@ -45,6 +45,7 @@ function predictNextYield(data, period) {
     // 1. Minimum data check
     const validPoints = data.filter(d => 
         d.cutOffYields && d.cutOffYields[period] !== null &&
+        d.weightedAverageYields && d.weightedAverageYields[period] !== null &&
         d.amountOffered && d.amountOffered[period] !== null &&
         d.bidsReceived && d.bidsReceived[period] !== null
     );
@@ -62,19 +63,24 @@ function predictNextYield(data, period) {
     // 4. Calculate Predicted Bid-to-Cover (BTC) Ratio
     const predictedBTC = (predictedSupply > 0) ? (predictedDemand / predictedSupply) : 1.0;
 
-    // 5. Predict Yield Trend (Base Forecast)
+    // 5. Predict Yield Trends (Base Forecasts)
     const yieldSeries = validPoints.map(d => d.cutOffYields[period]).slice(-18);
+    const weightedSeries = validPoints.map(d => d.weightedAverageYields[period]).slice(-18);
+    
     // Use higher alpha for yields to respond to recent market shifts
     const baseYieldForecast = holtLinearUpdate(yieldSeries, 0.7, 0.3);
+    const baseWeightedForecast = holtLinearUpdate(weightedSeries, 0.7, 0.3);
 
     // 6. Apply Demand-Supply Sensitivity Adjustment
     const demandSensitivity = -0.45; // Yield % change per unit of BTC deviation from 1.2
     const btcDeviation = predictedBTC - 1.20;
     
     const finalYield = baseYieldForecast + (btcDeviation * demandSensitivity);
+    const finalWeightedYield = baseWeightedForecast + (btcDeviation * demandSensitivity);
 
     return {
         yield: finalYield,
+        weightedYield: finalWeightedYield,
         btc: predictedBTC,
         supply: predictedSupply,
         demand: predictedDemand

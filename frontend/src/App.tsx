@@ -71,6 +71,7 @@ interface YieldData {
 
 interface PredictionData {
   yield: number;
+  weightedYield: number;
   btc: number;
   supply: number;
   demand: number;
@@ -90,7 +91,7 @@ export default function App() {
   const [selectedPeriod, setSelectedPeriod] = useState('3M');
   const [filterMonth, setFilterMonth] = useState<string>('');
   const [filterYear, setFilterYear] = useState<string>('');
-  const [chartMode, setChartMode] = useState<'yield' | 'demand'>('yield');
+  const [chartMode, setChartMode] = useState<'yield' | 'demand' | 'weighted'>('yield');
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
@@ -203,7 +204,30 @@ export default function App() {
     });
   }
 
-  const chartData = chartMode === 'yield' ? yieldChartData : demandChartData;
+  // Weighted Average Yield chart data
+  const weightedChartData = filteredData.map((item) => ({
+    date: new Date(item.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' }),
+    fullDate: item.date,
+    '28 Days': item.weightedAverageYields?.['28_days'],
+    '91 Days': item.weightedAverageYields?.['91_days'],
+    '182 Days': item.weightedAverageYields?.['182_days'],
+    '364 Days': item.weightedAverageYields?.['364_days'],
+    isPredicted: false
+  }));
+  if (data.length > 0) {
+    const f = predictions;
+    weightedChartData.push({
+      date: 'Next (Predicted)',
+      fullDate: 'Prediction',
+      '28 Days': f?.['28_days']?.weightedYield ?? null,
+      '91 Days': f?.['91_days']?.weightedYield ?? null,
+      '182 Days': f?.['182_days']?.weightedYield ?? null,
+      '364 Days': f?.['364_days']?.weightedYield ?? null,
+      isPredicted: true
+    });
+  }
+
+  const chartData = chartMode === 'yield' ? yieldChartData : (chartMode === 'demand' ? demandChartData : weightedChartData);
 
   const periods = [
     { key: '28_days', label: '28 Days', indicator: '1 Month' },
@@ -294,11 +318,19 @@ export default function App() {
             <div className="help-concept">
               <div className="help-concept-label">Cut-Off Yield</div>
               <p className="help-text">
-                The minimum interest rate the NBE accepted bids at in a given auction — effectively the
-                "market clearing price" for that T-Bill. A rising cut-off yield means the government had
+                The maximum interest rate the NBE accepted bids at in a given auction — effectively the
+                "market clearing price". A rising cut-off yield means the government had
                 to offer higher rates to attract buyers.
               </p>
-              <p className="help-text help-example">Example: A 28-Day cut-off yield of 11.799% means investors earned 11.799% per year on a 28-day investment.</p>
+            </div>
+
+            <div className="help-concept">
+              <div className="help-concept-label">Weighted Average Yield</div>
+              <p className="help-text">
+                The average interest rate of <strong>all accepted bids</strong>, weighted by the amount
+                each investor bid. It represents the "true" average cost of borrowing for the government.
+                It is usually slightly different from the Cut-Off Yield.
+              </p>
             </div>
 
             <div className="help-concept">
@@ -322,9 +354,9 @@ export default function App() {
             <div className="help-concept">
               <div className="help-concept-label">Prediction</div>
               <p className="help-text">
-                An AI model estimates the <strong>next auction's yield and demand ratio</strong> based on
-                historical patterns. Shown on the metric cards and as the final chart point behind a dashed
-                green line. Treat predictions as a directional guide, not as financial advice.
+                An AI model estimates the <strong>next auction's yields and demand ratio</strong> based on
+                historical patterns. Predictions are generated independently for both Cut-Off and Weighted Average
+                rates. Shown on the metric cards and as the final chart points.
               </p>
             </div>
           </section>
@@ -348,7 +380,7 @@ export default function App() {
               </div>
               <div className="help-feature-item">
                 <span className="help-feature-icon">🔮</span>
-                <div><strong>Next Prediction box</strong> — AI estimate of next auction's yield &amp; demand</div>
+                <div><strong>Next Prediction box</strong> — Dual AI estimates (Cut Off &amp; Wtd Avg) plus predicted demand</div>
               </div>
             </div>
           </section>
@@ -362,8 +394,9 @@ export default function App() {
               <table className="help-table">
                 <thead><tr><th>Mode</th><th>What is plotted</th><th>Y-axis unit</th></tr></thead>
                 <tbody>
-                  <tr><td>Cut Off Yield</td><td>Interest rate per maturity over time</td><td>% per year</td></tr>
-                  <tr><td>Demand</td><td>Bid-to-cover ratio per maturity over time</td><td>× (times)</td></tr>
+                  <tr><td>Cut Off Yield</td><td>Market-clearing interest rate</td><td>% per year</td></tr>
+                  <tr><td>Weighted Avg</td><td>Volume-weighted average interest rate</td><td>% per year</td></tr>
+                  <tr><td>Demand</td><td>Bid-to-cover ratio per maturity</td><td>× (times)</td></tr>
                 </tbody>
               </table>
             </div>
@@ -401,7 +434,7 @@ export default function App() {
                 <tbody>
                   <tr><td>Date</td><td>Auction date</td></tr>
                   <tr><td>Auction</td><td>Serial auction number</td></tr>
-                  <tr><td>Yield (28/91/182/364)</td><td>Cut-off yield for each maturity</td></tr>
+                  <tr><td>Yield (Cut Off / Wtd Avg)</td><td>Stacked yields (Top: Cut-Off, Bottom: Weighted Avg)</td></tr>
                   <tr><td>Demand Ratio (BTC)</td><td>Bid-to-cover ratio per maturity</td></tr>
                   <tr><td>Total Bids (ETB M)</td><td>Total money bid, in millions of Birr</td></tr>
                 </tbody>
@@ -433,6 +466,10 @@ export default function App() {
               <div className="help-faq-item">
                 <div className="help-faq-q">How often is data updated?</div>
                 <div className="help-faq-a">Data is sourced from the NBE website and updated after each auction, which typically occurs weekly.</div>
+              </div>
+              <div className="help-faq-item">
+                <div className="help-faq-q">Why are there two different yield percentages?</div>
+                <div className="help-faq-a">The <strong>Cut-Off</strong> is the highest rate accepted by the bank. The <strong>Weighted Average</strong> is the actual average rate paid across all accepted bids. Most investors look at the Cut-Off as the current market benchmark.</div>
               </div>
               <div className="help-faq-item">
                 <div className="help-faq-q">What does a high demand ratio mean for future yields?</div>
@@ -649,9 +686,14 @@ export default function App() {
                            Demand: {predictions[period.key]!.btc.toFixed(2)}x
                         </span>
                       </div>
-                      <span className="prediction-value">
-                        {predictions[period.key]!.yield.toFixed(3)}%
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span className="prediction-value" style={{ fontSize: '1.2rem' }}>
+                          {predictions[period.key]!.yield.toFixed(3)}% <span style={{ fontSize: '0.75rem', opacity: 0.6, fontWeight: 500 }}>(Cut Off)</span>
+                        </span>
+                        <span className="prediction-value" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                          {predictions[period.key]!.weightedYield.toFixed(3)}% <span style={{ fontSize: '0.7rem', opacity: 0.6, fontWeight: 500 }}>(Wtd Avg)</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -664,7 +706,7 @@ export default function App() {
           <div className="chart-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               <h2 style={{ margin: 0 }}>
-                {chartMode === 'yield' ? 'Cut Off Yield Trends & Prediction' : 'Demand (BTC) Trends & Prediction'}
+                {chartMode === 'yield' ? 'Cut Off Yield Trends' : (chartMode === 'demand' ? 'Demand (BTC) Trends' : 'Weighted Avg Yield Trends')}
               </h2>
               <div className="chart-mode-selector">
                 <button
@@ -672,6 +714,12 @@ export default function App() {
                   onClick={() => setChartMode('yield')}
                 >
                   Cut Off Yield
+                </button>
+                <button
+                  className={`mode-btn ${chartMode === 'weighted' ? 'active' : ''}`}
+                  onClick={() => setChartMode('weighted')}
+                >
+                  Weighted Avg
                 </button>
                 <button
                   className={`mode-btn ${chartMode === 'demand' ? 'active' : ''}`}
@@ -705,7 +753,7 @@ export default function App() {
                   stroke="var(--text-secondary)"
                   tick={{fontSize: 12}}
                   domain={['auto', 'auto']}
-                  tickFormatter={(v) => chartMode === 'yield' ? `${v}%` : `${v}x`}
+                  tickFormatter={(v) => chartMode === 'demand' ? `${v}x` : `${v}%`}
                 />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px' }}
@@ -716,6 +764,9 @@ export default function App() {
                     const formattedValue = Number(value).toFixed(3);
                     if (chartMode === 'demand') {
                       return [`${formattedValue}x`, `${name} BTC`];
+                    }
+                    if (chartMode === 'weighted') {
+                       return [`${formattedValue}%`, `${name} Wtd Avg`];
                     }
                     return [`${formattedValue}%`, `${name} Yield`];
                   }}
@@ -852,7 +903,7 @@ export default function App() {
                 <tr>
                   <th>Date</th>
                   <th>Auction</th>
-                  <th>Yield (28 / 91 / 182 / 364)</th>
+                  <th>Yield (Cut Off / Wtd Avg)</th>
                   <th>Demand Ratio (BTC)</th>
                   <th>Total Bids (ETB M)</th>
                 </tr>
@@ -883,10 +934,12 @@ export default function App() {
                       <td>{item.auctionNo}</td>
                       <td>
                         <div className="yield-row">
-                          <span className="yield-tag">{item.cutOffYields['28_days'] || '-'}%</span>
-                          <span className="yield-tag">{item.cutOffYields['91_days'] || '-'}%</span>
-                          <span className="yield-tag">{item.cutOffYields['182_days'] || '-'}%</span>
-                          <span className="yield-tag">{item.cutOffYields['364_days'] || '-'}%</span>
+                          {[ '28_days', '91_days', '182_days', '364_days' ].map(period => (
+                            <div key={period} className="yield-tag" style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '4px 8px', minWidth: '65px' }}>
+                              <span style={{ fontWeight: 700 }}>{item.cutOffYields[period] || '-'}%</span>
+                              <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{item.weightedAverageYields?.[period] ? `${item.weightedAverageYields[period]}%` : '-'}</span>
+                            </div>
+                          ))}
                         </div>
                       </td>
                       <td>
