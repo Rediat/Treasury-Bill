@@ -934,12 +934,21 @@ export default function App() {
                       <td>{item.auctionNo}</td>
                       <td>
                         <div className="yield-row">
-                          {[ '28_days', '91_days', '182_days', '364_days' ].map(period => (
-                            <div key={period} className="yield-tag" style={{ display: 'flex', flexDirection: 'column', gap: '2px', padding: '4px 8px', minWidth: '65px' }}>
-                              <span style={{ fontWeight: 700 }}>{item.cutOffYields[period] || '-'}%</span>
-                              <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{item.weightedAverageYields?.[period] ? `${item.weightedAverageYields[period]}%` : '-'}</span>
-                            </div>
-                          ))}
+                          {[ '28_days', '91_days', '182_days', '364_days' ].map(period => {
+                            const cutoff = item.cutOffYields[period];
+                            const weighted = item.weightedAverageYields?.[period];
+                            const spread = (cutoff && weighted) ? (cutoff - weighted).toFixed(3) : null;
+                            
+                            return (
+                              <div key={period} className="yield-tag" style={{ display: 'flex', flexDirection: 'column', gap: '1px', padding: '4px 8px', minWidth: '70px' }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{cutoff || '-'}%</span>
+                                <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>W: {weighted ? `${weighted}%` : '-'}</span>
+                                {spread !== null && (
+                                  <span style={{ fontSize: '0.65rem', color: 'var(--accent)', fontWeight: 600 }}>Δ: {spread}pp</span>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </td>
                       <td>
