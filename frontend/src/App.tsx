@@ -366,24 +366,44 @@ export default function App() {
           </div>
           <div className="table-container">
             <table>
-              <thead><tr><th>Date</th><th>Auction</th><th>Yield (Cut Off / Wtd)</th><th>Demand Ratio</th><th>Total Bids</th></tr></thead>
+              <thead>
+                <tr>
+                  <th rowSpan={2}>Date</th>
+                  <th rowSpan={2}>Auction</th>
+                  <th colSpan={4} className="group-header yield-section-bg">Yield (Cut-Off / Weighted)</th>
+                  <th colSpan={4} className="group-header">Demand Ratio (BTC)</th>
+                  <th rowSpan={2}>Total Bids</th>
+                </tr>
+                <tr>
+                  <th className="tenure-header yield-section-bg">28D</th>
+                  <th className="tenure-header yield-section-bg">91D</th>
+                  <th className="tenure-header yield-section-bg">182D</th>
+                  <th className="tenure-header yield-section-bg">364D</th>
+                  <th className="tenure-header">28D</th>
+                  <th className="tenure-header">91D</th>
+                  <th className="tenure-header">182D</th>
+                  <th className="tenure-header">364D</th>
+                </tr>
+              </thead>
               <tbody>
                 {filteredTableData.map((item, idx) => (
                   <tr key={idx}>
-                    <td>{item.date}</td>
-                    <td>{item.auctionNo}</td>
-                    <td>
-                      <div className="yield-row">
-                        {['28_days', '91_days', '182_days', '364_days'].map(p => (
-                          <div key={p} className="yield-tag">
-                            <span style={{ fontWeight: 700 }}>{item.cutOffYields[p] || '-'}%</span>
-                            <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>{item.weightedAverageYields?.[p] || '-'}%</span>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td><div className="yield-row">{['28_days', '91_days', '182_days', '364_days'].map(p => <span key={p} className="btc-tag">{getBTC(item, p) ? `${getBTC(item, p)}x` : '-'}</span>)}</div></td>
-                    <td>{Object.values(item.bidsReceived || {}).reduce((acc: number, val: number | null) => acc + (val || 0), 0).toLocaleString()}</td>
+                    <td className="date-cell">{item.date}</td>
+                    <td className="auction-cell">{item.auctionNo}</td>
+                    {['28_days', '91_days', '182_days', '364_days'].map(p => (
+                      <td key={`yield-${p}`} className="yield-cell yield-section-bg">
+                        <div className="yield-stack">
+                          <span className="cut-off">{item.cutOffYields[p] ? `${item.cutOffYields[p]}%` : '-'}</span>
+                          <span className="wtd-avg">{item.weightedAverageYields?.[p] ? `${item.weightedAverageYields[p]}%` : '-'}</span>
+                        </div>
+                      </td>
+                    ))}
+                    {['28_days', '91_days', '182_days', '364_days'].map(p => (
+                      <td key={`btc-${p}`} className="btc-cell">
+                        <span className="btc-value">{getBTC(item, p) ? `${getBTC(item, p)}x` : '-'}</span>
+                      </td>
+                    ))}
+                    <td className="bids-cell">{Object.values(item.bidsReceived || {}).reduce((acc: number, val: number | null) => acc + (val || 0), 0).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
