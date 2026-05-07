@@ -79,15 +79,15 @@ body {
 
 .metric-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
 }
 
 .metric-card {
-  padding: 1.5rem;
+  padding: 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
   position: relative;
   overflow: hidden;
 }
@@ -111,7 +111,7 @@ body {
 }
 
 .metric-value {
-  font-size: 2.2rem;
+  font-size: 1.8rem;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -368,10 +368,22 @@ tr:hover td {
 }
 
 .metric-row {
+  display: none; /* Replaced by current-stats flex layout */
+}
+
+.main-metric-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
+  gap: 0.75rem;
   margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.current-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .demand-badge {
@@ -384,11 +396,13 @@ tr:hover td {
 }
 
 .prediction-box {
-  margin-top: 1.25rem;
-  padding: 0.75rem 1rem;
+  margin-top: 0 !important;
+  padding: 0.6rem 0.75rem;
   background: rgba(74, 222, 128, 0.08);
-  border-radius: 12px;
-  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  border-left: 2px solid var(--accent);
+  flex: 1 1 200px;
+  min-width: 0;
 }
 
 .prediction-content {
@@ -402,6 +416,8 @@ tr:hover td {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.15rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .prediction-label {
@@ -422,7 +438,7 @@ tr:hover td {
 
 .prediction-value {
   display: block;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--accent);
 }
@@ -694,4 +710,21 @@ tr:hover td {
   padding: 0.5rem 0.85rem;
   font-size: 0.82rem;
   color: var(--text-secondary);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 850px) {
+  .main-metric-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .prediction-box {
+    max-width: 100%;
+  }
+  
+  .metric-value {
+    font-size: 1.6rem;
+  }
 }

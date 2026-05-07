@@ -323,21 +323,23 @@ export default function App() {
                   <div className="label-group"><Calendar size={14} color="var(--text-secondary)" /><span className="maturity-label">{p.label}</span><span className="period-indicator">{p.indicator}</span></div>
                   <div className="btc-badge">Demand: {latestAuction ? getBTC(latestAuction, p.key)?.toFixed(2) : '-'}x</div>
                 </div>
-                <div className="metric-value">{currentVal !== null ? `${currentVal}%` : 'N/A'}</div>
-                <div className="metric-row">
-                  {trend && <div className={`metric-sub ${trend.isUp ? 'trend-up' : 'trend-down'}`}><TrendingUp size={14} style={{ transform: trend.isUp ? 'none' : 'rotate(180deg)' }} />{trend.diff}%</div>}
-                </div>
-                {pred && (
-                  <div className="prediction-box">
-                    <div className="prediction-content">
-                      <div className="prediction-meta"><span className="prediction-label">Next Prediction</span><span className="prediction-demand">Demand: {pred.btc.toFixed(2)}x</span></div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        <span className="prediction-value" style={{ fontSize: '1.2rem' }}>{pred.yield.toFixed(3)}%</span>
-                        <span className="prediction-value" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{pred.weightedYield.toFixed(3)}% (Wtd)</span>
+                <div className="main-metric-content">
+                  <div className="current-stats">
+                    <div className="metric-value">{currentVal !== null ? `${currentVal}%` : 'N/A'}</div>
+                    {trend && <div className={`metric-sub ${trend.isUp ? 'trend-up' : 'trend-down'}`}><TrendingUp size={14} style={{ transform: trend.isUp ? 'none' : 'rotate(180deg)' }} />{trend.diff}%</div>}
+                  </div>
+                  {pred && (
+                    <div className="prediction-box">
+                      <div className="prediction-content">
+                        <div className="prediction-meta"><span className="prediction-label">Next Prediction</span><span className="prediction-demand">Demand: {pred.btc.toFixed(1)}x</span></div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                          <span className="prediction-value">{pred.yield.toFixed(3)}%</span>
+                          <span className="prediction-value" style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 500 }}>{pred.weightedYield.toFixed(3)}% (Wtd)</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             );
           })}
