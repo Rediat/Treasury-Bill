@@ -255,7 +255,7 @@ const ComparisonChart = ({ data, predictions, onRemove, showRemove }: any) => {
       )}
       <div style={{ height: 350, width: '100%', marginTop: '1rem' }}>
         <ResponsiveContainer>
-          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 0 }}>
+          <LineChart data={chartData as any} margin={{ top: 20, right: 30, left: 10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
             <XAxis dataKey="date" stroke="var(--text-secondary)" tick={{fontSize: 10}} />
             <YAxis stroke="var(--text-secondary)" tick={{fontSize: 10}} domain={['auto', 'auto']} tickFormatter={formatValue} />
