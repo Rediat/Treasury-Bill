@@ -78,9 +78,24 @@ const ComparisonChart = ({ data, predictions, onRemove, showRemove }: any) => {
   const [selectedPeriod, setSelectedPeriod] = useState('3M');
   const [customStartDate, setCustomStartDate] = useState('');
   const [customEndDate, setCustomEndDate] = useState('');
-  const [chartMode, setChartMode] = useState<'yield' | 'demand' | 'weighted'>('yield');
+  const [chartMode, setChartMode] = useState<'yield' | 'demand' | 'weighted' | 'liquidity'>('yield');
+  const [selectedTenures, setSelectedTenures] = useState<string[]>(['28_days', '91_days', '182_days', '364_days']);
 
   const chartPeriods = ['1D', '5D', '1M', '3M', '6M', '1Y', 'ALL', 'CUSTOM'];
+  const tenureConfigs = [
+    { key: '28_days', label: '28 Days', shortLabel: '28D', color: '#bef264' },
+    { key: '91_days', label: '91 Days', shortLabel: '91D', color: '#4ade80' },
+    { key: '182_days', label: '182 Days', shortLabel: '182D', color: '#fbbf24' },
+    { key: '364_days', label: '364 Days', shortLabel: '364D', color: '#ffffff' },
+  ];
+
+  const toggleTenure = (key: string) => {
+    setSelectedTenures(prev => 
+      prev.includes(key) 
+        ? (prev.length > 1 ? prev.filter(k => k !== key) : prev)
+        : [...prev, key]
+    );
+  };
 
   const filterByPeriod = (data: YieldData[]) => {
     if (selectedPeriod === 'ALL') return data;
@@ -165,19 +180,54 @@ const ComparisonChart = ({ data, predictions, onRemove, showRemove }: any) => {
     });
   }
 
-  const chartData = chartMode === 'yield' ? yieldChartData : (chartMode === 'demand' ? demandChartData : weightedChartData);
+  const liquidityChartData = filteredData.map((item: any) => ({
+    date: new Date(item.date).toLocaleDateString('en-GB', { month: 'short', day: 'numeric', year: 'numeric' }),
+    'Offered': selectedTenures.reduce((acc: number, tenure: string) => acc + (item.amountOffered?.[tenure] || 0), 0),
+    'Received': selectedTenures.reduce((acc: number, tenure: string) => acc + (item.bidsReceived?.[tenure] || 0), 0),
+  }));
+  if (data.length > 0) {
+    liquidityChartData.push({
+      date: 'Next (Predicted)',
+      'Offered': selectedTenures.reduce((acc: number, tenure: string) => acc + (predictions?.[tenure]?.supply || 0), 0),
+      'Received': selectedTenures.reduce((acc: number, tenure: string) => acc + (predictions?.[tenure]?.demand || 0), 0),
+    });
+  }
+
+  const chartData = chartMode === 'yield' ? yieldChartData : (chartMode === 'demand' ? demandChartData : (chartMode === 'weighted' ? weightedChartData : liquidityChartData));
+
+  const formatValue = (v: any) => {
+    if (chartMode === 'demand') return `${v}x`;
+    if (chartMode === 'liquidity') {
+      if (v >= 1000000000) return `${(v / 1000000000).toFixed(1)}B`;
+      if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
+      return v.toLocaleString();
+    }
+    return `${v}%`;
+  };
 
   return (
     <section className="glass-panel chart-section">
       <div className="chart-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', flex: 1 }}>
           <h2 style={{ margin: 0, fontSize: '1.1rem' }}>
-            {chartMode === 'yield' ? 'Cut Off Yield Trends' : (chartMode === 'demand' ? 'Demand (BTC) Trends' : 'Weighted Avg Yield Trends')}
+            {chartMode === 'yield' ? 'Cut Off Yield Trends' : (chartMode === 'demand' ? 'Demand (BTC) Trends' : (chartMode === 'weighted' ? 'Weighted Avg Yield Trends' : 'Liquidity Trends (Offered vs Bid)'))}
           </h2>
           <div className="chart-mode-selector">
-            {['yield', 'weighted', 'demand'].map(m => (
+            {['yield', 'weighted', 'demand', 'liquidity'].map(m => (
               <button key={m} className={`mode-btn ${chartMode === m ? 'active' : ''}`} onClick={() => setChartMode(m as any)}>
-                {m === 'yield' ? 'Cut Off' : (m === 'weighted' ? 'Wtd Avg' : 'Demand')}
+                {m === 'yield' ? 'Cut Off' : (m === 'weighted' ? 'Wtd Avg' : (m === 'demand' ? 'Demand' : 'Liquidity'))}
+              </button>
+            ))}
+          </div>
+          <div className="chart-mode-selector tenure-filter-group" style={{ marginLeft: '0.5rem', background: 'rgba(255,255,255,0.03)' }}>
+            {tenureConfigs.map(opt => (
+              <button 
+                key={opt.key} 
+                className={`mode-btn ${selectedTenures.includes(opt.key) ? 'active' : ''}`} 
+                onClick={() => toggleTenure(opt.key)}
+                style={{ fontSize: '0.7rem', padding: '4px 10px' }}
+              >
+                {opt.shortLabel}
               </button>
             ))}
           </div>
@@ -208,15 +258,30 @@ const ComparisonChart = ({ data, predictions, onRemove, showRemove }: any) => {
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
             <XAxis dataKey="date" stroke="var(--text-secondary)" tick={{fontSize: 10}} />
-            <YAxis stroke="var(--text-secondary)" tick={{fontSize: 10}} domain={['auto', 'auto']} tickFormatter={(v) => chartMode === 'demand' ? `${v}x` : `${v}%`} />
-            <Tooltip contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px' }} labelStyle={{ color: 'var(--accent)' }} itemSorter={(item: any) => -(item.value || 0)} formatter={(value: any, name: any) => [Number(value).toFixed(3) + (chartMode === 'demand' ? 'x' : '%'), name]} />
-            {[{ key: '28 Days', color: '#bef264' }, { key: '91 Days', color: '#4ade80' }, { key: '182 Days', color: '#fbbf24' }, { key: '364 Days', color: '#ffffff' }].map(l => (
-              <Line key={l.key} type="monotone" dataKey={l.key} stroke={l.color} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 6 }} name={l.key} />
-            ))}
+            <YAxis stroke="var(--text-secondary)" tick={{fontSize: 10}} domain={['auto', 'auto']} tickFormatter={formatValue} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px' }} 
+              labelStyle={{ color: 'var(--accent)' }} 
+              itemSorter={(item: any) => -(item.value || 0)} 
+              formatter={(value: any, name: any) => [chartMode === 'liquidity' ? value.toLocaleString() : Number(value).toFixed(3) + (chartMode === 'demand' ? 'x' : '%'), name]} 
+            />
+            {chartMode === 'liquidity' ? (
+              <>
+                <Line type="monotone" dataKey="Offered" stroke="var(--accent)" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 6 }} name={`Offered (${selectedTenures.length === 4 ? 'Total' : selectedTenures.map(k => k.split('_')[0]).join('+')})`} />
+                <Line type="monotone" dataKey="Received" stroke="#fbbf24" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 6 }} name={`Bids (${selectedTenures.length === 4 ? 'Total' : selectedTenures.map(k => k.split('_')[0]).join('+')})`} />
+              </>
+            ) : (
+              tenureConfigs.filter(l => selectedTenures.includes(l.key)).map(l => (
+                <Line key={l.key} type="monotone" dataKey={l.label} stroke={l.color} strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 6 }} name={l.label} />
+              ))
+            )}
             <ReferenceLine x="Next (Predicted)" stroke="var(--accent)" strokeDasharray="3 3" />
             <Legend iconType="circle" content={(props) => (
               <div className="custom-legend" style={{ fontSize: '0.75rem', gap: '1rem' }}>
-                {[...(props.payload || [])].sort((a: any, b: any) => parseInt(a.value as string) - parseInt(b.value as string)).map((entry: any, index: number) => (
+                {[...(props.payload || [])].sort((a: any, b: any) => {
+                  if (chartMode === 'liquidity') return 0;
+                  return parseInt(a.value as string) - parseInt(b.value as string);
+                }).map((entry: any, index: number) => (
                   <div key={`item-${index}`} className="legend-item">
                     <span className="legend-icon" style={{ backgroundColor: entry.color, width: 8, height: 8 }} />
                     <span className="legend-label">{entry.value}</span>
