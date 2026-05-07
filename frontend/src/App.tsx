@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
-import { Activity, TrendingUp, Calendar, AlertCircle, X, ChevronDown, HelpCircle, BookOpen, BarChart2 } from 'lucide-react';
+import { Activity, TrendingUp, Calendar, AlertCircle, X, ChevronDown, HelpCircle, BookOpen } from 'lucide-react';
 import './index.css';
 
 const CustomSelect = ({ value, onChange, options, placeholder, icon, style, title }: any) => {
@@ -216,7 +216,7 @@ const ComparisonChart = ({ data, predictions, onRemove, showRemove }: any) => {
             <ReferenceLine x="Next (Predicted)" stroke="var(--accent)" strokeDasharray="3 3" />
             <Legend iconType="circle" content={(props) => (
               <div className="custom-legend" style={{ fontSize: '0.75rem', gap: '1rem' }}>
-                {(props.payload || []).sort((a, b) => parseInt(a.value as string) - parseInt(b.value as string)).map((entry: any, index) => (
+                {[...(props.payload || [])].sort((a: any, b: any) => parseInt(a.value as string) - parseInt(b.value as string)).map((entry: any, index: number) => (
                   <div key={`item-${index}`} className="legend-item">
                     <span className="legend-icon" style={{ backgroundColor: entry.color, width: 8, height: 8 }} />
                     <span className="legend-label">{entry.value}</span>
@@ -383,7 +383,7 @@ export default function App() {
                       </div>
                     </td>
                     <td><div className="yield-row">{['28_days', '91_days', '182_days', '364_days'].map(p => <span key={p} className="btc-tag">{getBTC(item, p) ? `${getBTC(item, p)}x` : '-'}</span>)}</div></td>
-                    <td>{Object.values(item.bidsReceived || {}).reduce((a, b) => (a || 0) + (b || 0), 0).toLocaleString()}</td>
+                    <td>{Object.values(item.bidsReceived || {}).reduce((acc: number, val: number | null) => acc + (val || 0), 0).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
