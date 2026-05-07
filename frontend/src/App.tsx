@@ -377,14 +377,14 @@ export default function App() {
                   <th rowSpan={2}>Total Bids</th>
                 </tr>
                 <tr>
-                  <th className="tenure-header yield-section-bg">28D</th>
-                  <th className="tenure-header yield-section-bg">91D</th>
-                  <th className="tenure-header yield-section-bg">182D</th>
-                  <th className="tenure-header yield-section-bg">364D</th>
-                  <th className="tenure-header">28D</th>
-                  <th className="tenure-header">91D</th>
-                  <th className="tenure-header">182D</th>
-                  <th className="tenure-header">364D</th>
+                  <th className="tenure-header yield-section-bg">28 Days</th>
+                  <th className="tenure-header yield-section-bg">91 Days</th>
+                  <th className="tenure-header yield-section-bg">182 Days</th>
+                  <th className="tenure-header yield-section-bg">364 Days</th>
+                  <th className="tenure-header">28 Days</th>
+                  <th className="tenure-header">91 Days</th>
+                  <th className="tenure-header">182 Days</th>
+                  <th className="tenure-header">364 Days</th>
                 </tr>
               </thead>
               <tbody>
