@@ -193,7 +193,7 @@ const ComparisonChart = ({ data, predictions, onRemove, showRemove }: any) => {
     });
   }
 
-  const chartData = chartMode === 'yield' ? yieldChartData : (chartMode === 'demand' ? demandChartData : (chartMode === 'weighted' ? weightedChartData : liquidityChartData));
+  const chartData: any[] = chartMode === 'yield' ? yieldChartData : (chartMode === 'demand' ? demandChartData : (chartMode === 'weighted' ? weightedChartData : liquidityChartData));
 
   const formatValue = (v: any) => {
     if (chartMode === 'demand') return `${v}x`;
