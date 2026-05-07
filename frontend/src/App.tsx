@@ -89,6 +89,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [showFullHistory, setShowFullHistory] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('3M');
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
   const [filterMonth, setFilterMonth] = useState<string>('');
   const [filterYear, setFilterYear] = useState<string>('');
   const [chartMode, setChartMode] = useState<'yield' | 'demand' | 'weighted'>('yield');
@@ -111,6 +113,20 @@ export default function App() {
 
   const filterByPeriod = (data: YieldData[]) => {
     if (selectedPeriod === 'ALL') return data;
+    if (selectedPeriod === 'CUSTOM') {
+      let filtered = data;
+      if (customStartDate) {
+        const [year, month] = customStartDate.split('-');
+        const start = new Date(Number(year), Number(month) - 1, 1);
+        filtered = filtered.filter(item => new Date(item.date) >= start);
+      }
+      if (customEndDate) {
+        const [year, month] = customEndDate.split('-');
+        const end = new Date(Number(year), Number(month), 0, 23, 59, 59);
+        filtered = filtered.filter(item => new Date(item.date) <= end);
+      }
+      return filtered;
+    }
     const now = new Date();
     let filterDate = new Date();
     
@@ -236,7 +252,7 @@ export default function App() {
     { key: '364_days', label: '364 Days', indicator: '1 Year' },
   ];
 
-  const chartPeriods = ['1D', '5D', '1M', '3M', '6M', '1Y', 'ALL'];
+  const chartPeriods = ['1D', '5D', '1M', '3M', '6M', '1Y', 'ALL', 'CUSTOM'];
 
   const getTrend = (periodKey: string) => {
     if (!latestAuction || !prevAuction) return null;
@@ -741,6 +757,24 @@ export default function App() {
               ))}
             </div>
           </div>
+          {selectedPeriod === 'CUSTOM' && (
+            <div className="custom-date-filters" style={{ display: 'flex', gap: '0.75rem', marginTop: '-1rem', marginBottom: '-0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>From:</span>
+              <input 
+                type="month" 
+                value={customStartDate} 
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="date-input"
+              />
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>To:</span>
+              <input 
+                type="month" 
+                value={customEndDate} 
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="date-input"
+              />
+            </div>
+          )}
           <div style={{ height: 400, width: '100%', marginTop: '1rem' }}>
             <ResponsiveContainer>
               <LineChart 
